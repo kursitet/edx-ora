@@ -27,7 +27,7 @@ import urlparse
 log = logging.getLogger(__name__)
 
 @periodic_task(run_every=settings.TIME_BETWEEN_EXPIRED_CHECKS)
-@single_instance_task(60*10)
+@single_instance_task(11*60)
 @transaction.commit_manually
 def expire_submissions_task():
     flag = True
@@ -71,6 +71,12 @@ def expire_submissions_task():
             transaction.commit()
         except Exception:
             log.exception("Could not reset ml to in!")
+
+        try:
+            expire_submissions.reset_skipped_subs()
+            transaction.commit()
+        except Exception:
+            log.exception("Could not reset skipped!")
 
         try:
             #See if duplicate peer grading items have been finished grading
