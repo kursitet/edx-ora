@@ -95,12 +95,14 @@ def submit(request):
                 #TODO: find a better way to do this
                 #Need to set rubric to whatever the first submission for this location had
                 #as its rubric.  If the rubric is changed in the course XML, it will break things.
-                try:
-                    first_sub_for_location=Submission.objects.filter(location=location).order_by('date_created')[0]
-                    rubric= first_sub_for_location.rubric
-                except Exception:
-                    error_message="Could not find an existing submission in location.  rubric is original."
-                    log.info(error_message)
+                
+                # With only IN checher thought no matter
+                #try:
+                #    first_sub_for_location=Submission.objects.filter(location=location).order_by('date_created')[0]
+                #    rubric= first_sub_for_location.rubric
+                #except Exception:
+                #    error_message="Could not find an existing submission in location.  rubric is original."
+                #    log.info(error_message)
 
                 initial_display=""
                 if 'initial_display' in body['grader_payload'].keys():
