@@ -151,8 +151,10 @@ def pull_from_xqueue():
     transaction.commit()
 
     submissions_to_post = check_for_completed_submissions()
-    for submission in list(submissions_to_post):
+    for idx, submission in enumerate(list(submissions_to_post)):
         post_one_submission_back_to_queue(submission, xqueue_session)
+        if idx >= 100:
+            break
 
     # Log out of the controller session, which deletes the database row.
     util.controller_logout(controller_session)
