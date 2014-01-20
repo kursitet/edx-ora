@@ -216,8 +216,6 @@ INSTALLED_APPS = (
     'controller',
     'staff_grading',
     'south',
-    'peer_grading',
-    'ml_grading',
     'metrics',
     'djcelery',
     )
