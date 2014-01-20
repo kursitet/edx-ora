@@ -50,54 +50,10 @@ def expire_submissions_task():
                 tags=["success:{0}".format(success)])
         """
         try:
-            expire_submissions.reset_in_subs_to_ml()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not reset in to ml!")
-        try:
-            expire_submissions.reset_subs_in_basic_check()
-            transaction.commit()
-        except Exception:
-            log.exception("Could reset subs in basic check!")
-
-        try:
-            expire_submissions.reset_failed_subs_in_basic_check()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not reset failed subs in basic check!")
-
-        try:
-            expire_submissions.reset_ml_subs_to_in()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not reset ml to in!")
-
-        try:
             expire_submissions.reset_skipped_subs()
             transaction.commit()
         except Exception:
             log.exception("Could not reset skipped!")
-
-        try:
-            #See if duplicate peer grading items have been finished grading
-            expire_submissions.add_in_duplicate_ids()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not finish checking for duplicate ids!")
-
-        try:
-            #See if duplicate peer grading items have been finished grading
-            expire_submissions.check_if_grading_finished_for_duplicates()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not finish checking if duplicates are graded!")
-
-        try:
-            #Mark submissions as duplicates if needed
-            expire_submissions.mark_student_duplicate_submissions()
-            transaction.commit()
-        except Exception:
-            log.exception("Could not mark subs as duplicate!")
 
         try:
             generate_student_metrics.regenerate_student_data()
