@@ -78,12 +78,15 @@ def reset_skipped_subs():
     counter=0
     unique_locations=[x['location'] for x in Submission.objects.all().values('location').distinct()]
     for location in unique_locations:
+        log.info("Proccessing location {loc}".format(loc = location))
         subs_pending_total= Submission.objects.filter(
             location=location,
             state=SubmissionState.skipped
         ).order_by('-date_created')
+        log.info("Total to reset {cnt}".format(cnt =  subs_pending_total.count()))
         for sub in subs_pending_total:
             sub.state=SubmissionState.waiting_to_be_graded
+            sub.save()
             counter+=1
     if counter>0:
         statsd.increment("open_ended_assessment.grading_controller.expire_submissions.reset_skipped_subs",
