@@ -88,7 +88,7 @@ def get_next_submission(request):
         (found, sid) = sc.next_item()
 
     if not found:
-        return util._success_response({'message': 'Нет задании данного типа для оценивания.'},
+        return util._success_response({'message': 'Нет заданий данного типа для оценивания.'},
                                       _INTERFACE_VERSION)
     try:
         submission = Submission.objects.get(id=int(sid))
