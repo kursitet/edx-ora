@@ -19,6 +19,7 @@ from django.utils import timezone
 import project_urls
 from controller.xqueue_interface import handle_submission
 import peer_grading_util
+from controller.control_util import SubmissionControl
 
 log = logging.getLogger(__name__)
 
@@ -104,7 +105,10 @@ class LMSInterfacePeerGradingTest(unittest.TestCase):
         grader.grader_id = "2"
         grader.save()
 
-        for i in xrange(0,settings.MIN_TO_USE_PEER):
+        pl = peer_grading_util.PeerLocation(LOCATION, "1")
+        control = SubmissionControl(pl.latest_submission())
+
+        for i in xrange(0, control.minimum_to_use_peer):
             test_sub = test_util.get_sub("PE", "1", LOCATION, "PE")
             test_sub.save()
             grader = test_util.get_grader("IN")
@@ -121,6 +125,75 @@ class LMSInterfacePeerGradingTest(unittest.TestCase):
         body = json.loads(content.content)
 
         self.assertEqual(body['success'], True)
+
+    def test_save_grade_with_no_rubrics_and_submission_flagged(self):
+        """
+        Test save grade when submission is flagged and rubric score are not provided.
+        """
+
+        test_sub = test_util.get_sub("PE", "blah", LOCATION, "PE")
+        test_sub.save()
+
+        test_dict = {
+            'location': LOCATION,
+            'grader_id': STUDENT_ID,
+            'submission_id': 1,
+            'score': 5,
+            'feedback': 'feedback',
+            'submission_key': 'string',
+            'submission_flagged': True,
+            'rubric_scores_complete': False,
+            'rubric_scores': [],
+            }
+
+        content = self.c.post(
+            SAVE_GRADE,
+            test_dict,
+        )
+
+        body = json.loads(content.content)
+        #Should succeed, as we created a submission above that save_grade can use
+        self.assertEqual(body["success"], True)
+
+        sub = Submission.objects.get(id=1)
+
+        #Score should be 0.
+        self.assertEqual(sub.get_last_grader().score, 0)
+
+    def test_save_grade_with_no_rubrics_and_submission_unknown(self):
+        """
+        Test save grade when submission is mark as unknown and rubric score are not provided.
+        """
+
+        test_sub = test_util.get_sub("PE", "blah", LOCATION, "PE")
+        test_sub.save()
+
+        test_dict = {
+            'location': LOCATION,
+            'grader_id': STUDENT_ID,
+            'submission_id': 1,
+            'score': 5,
+            'feedback': 'feedback',
+            'submission_key': 'string',
+            'submission_flagged': False,
+            'answer_unknown': True,
+            'rubric_scores_complete': False,
+            'rubric_scores': [],
+            }
+
+        content = self.c.post(
+            SAVE_GRADE,
+            test_dict,
+        )
+
+        body = json.loads(content.content)
+        #Should succeed, as we created a submission above that save_grade can use
+        self.assertEqual(body["success"], True)
+
+        sub = Submission.objects.get(id=1)
+
+        #Score should be 0.
+        self.assertEqual(sub.get_last_grader().score, 0)
 
     def test_save_grade_false(self):
         test_dict={
@@ -365,7 +438,14 @@ class PeerGradingUtilTest(unittest.TestCase):
             }
 
     def test_get_single_peer_grading_item(self):
-        for i in xrange(0,settings.MIN_TO_USE_PEER):
+        test_sub = test_util.get_sub("PE", STUDENT_ID, LOCATION, "PE")
+        test_sub.save()
+        handle_submission(test_sub)
+
+        pl = peer_grading_util.PeerLocation(LOCATION, STUDENT_ID)
+        control = SubmissionControl(pl.latest_submission())
+
+        for i in xrange(0, control.minimum_to_use_peer):
             test_sub = test_util.get_sub("PE", STUDENT_ID, LOCATION, "PE")
             test_sub.save()
             handle_submission(test_sub)
