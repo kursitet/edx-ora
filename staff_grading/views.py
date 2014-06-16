@@ -24,7 +24,7 @@ from controller import rubric_functions
 import staff_grading_util
 from ml_grading import ml_grading_util
 from controller.control_util import SubmissionControl
-
+from django.utils.translation import ugettext as _
 from django.db import connection
 
 log = logging.getLogger(__name__)
@@ -97,6 +97,27 @@ def get_next_submission(request):
         return util._error_response('failed_to_load_submission',
                                     _INTERFACE_VERSION,
                                     data={'submission_id': sid})
+    submissions = Submission.objects.filter(student_id = submission.student_id, problem_id = submission.problem_id)
+    all_feedbacks = []
+    index = 1;
+    for submission_one in submissions:
+        graders = submission_one.get_all_graders()
+        feedbacks = []
+        for i, grader in enumerate(graders):
+            if (i == 0 or grader.status_code != "S"):
+                continue
+            feedback = unicode(json.loads(grader.feedback,"UTF-8")["feedback"]).strip()
+            if (feedback == ""):
+                continue
+            if (not feedback.startswith("<div>") or not feedback.endswith("</div>")):
+                feedback = "<div>" + feedback + "</div>"
+            feedbacks.append(feedback)
+        if (len(feedbacks) > 0):
+            tmp = _("Comments for attempt number ") + unicode(index) + ":"+ "".join(feedbacks)
+            all_feedbacks.append(tmp)
+        index += 1
+    if (len(all_feedbacks) == 0):
+        all_feedbacks = [_("There is no comments.")]
 
     #Get error metrics from ml grading, and get into dictionary form to pass down to staff grading view
     success, ml_error_info=ml_grading_util.get_ml_errors(submission.location)
@@ -126,6 +147,7 @@ def get_next_submission(request):
                 'num_graded': sl.graded_count(),
                 'num_pending': sl.pending_count(),
                 'min_for_ml': control.minimum_to_use_ai,
+                'feedbacks': all_feedbacks
                 }
 
     util.log_connection_data()
