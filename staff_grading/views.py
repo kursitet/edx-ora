@@ -113,11 +113,9 @@ def get_next_submission(request):
                 feedback = "<div>" + feedback + "</div>"
             feedbacks.append(feedback)
         if (len(feedbacks) > 0):
-            tmp = _("Comments for attempt number ") + unicode(index) + ":"+ "".join(feedbacks)
+            tmp = (index,feedbacks)
             all_feedbacks.append(tmp)
         index += 1
-    if (len(all_feedbacks) == 0):
-        all_feedbacks = [_("There is no comments.")]
 
     #Get error metrics from ml grading, and get into dictionary form to pass down to staff grading view
     success, ml_error_info=ml_grading_util.get_ml_errors(submission.location)
