@@ -24,7 +24,7 @@ from controller import rubric_functions
 import staff_grading_util
 from ml_grading import ml_grading_util
 from controller.control_util import SubmissionControl
-from django.utils.translation import ugettext as _
+
 from django.db import connection
 
 log = logging.getLogger(__name__)
