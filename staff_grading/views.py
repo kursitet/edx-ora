@@ -99,13 +99,15 @@ def get_next_submission(request):
                                     data={'submission_id': sid})
     submissions = Submission.objects.filter(student_id = submission.student_id, problem_id = submission.problem_id)
     all_feedbacks = []
-    index = 1;
+    index = 1
+    last_score = -1
     for submission_one in submissions:
         graders = submission_one.get_all_graders()
         feedbacks = []
         for i, grader in enumerate(graders):
             if (i == 0 or grader.status_code != "S"):
                 continue
+            if (hasattr(grader,"score")): last_score = grader.score
             feedback = unicode(json.loads(grader.feedback,"UTF-8")["feedback"]).strip()
             if (feedback == ""):
                 continue
@@ -145,7 +147,8 @@ def get_next_submission(request):
                 'num_graded': sl.graded_count(),
                 'num_pending': sl.pending_count(),
                 'min_for_ml': control.minimum_to_use_ai,
-                'feedbacks': all_feedbacks
+                'feedbacks': all_feedbacks,
+                'last_score':last_score
                 }
 
     util.log_connection_data()
