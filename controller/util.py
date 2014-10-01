@@ -402,8 +402,7 @@ def sanitize_html(text):
             add_nofollow=False,
             page_structure=True,
             safe_attrs_only=False,
-            remove_unknown_tags=False,
-            allow_tags=["img", "a"]
+            remove_unknown_tags=False
         )
         clean_html = cleaner.clean_html(text)
         clean_html = re.sub(r'</p>$', '', re.sub(r'^<p>', '', clean_html))

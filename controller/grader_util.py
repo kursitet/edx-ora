@@ -366,7 +366,7 @@ def get_problems_student_has_tried(student_id, course_id):
             sub_human_state = STATE_CODES[state_index][1]
             eta = 0
             eta_available = False
-            if sub_state in ["W","C"]:
+            if sub_state in ["W","C","S"]:
                 success, eta = get_eta_for_submission(location)
                 eta_available = success
             sub_dict={
