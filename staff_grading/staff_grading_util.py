@@ -67,7 +67,7 @@ class StaffLocation(LocationCapsule):
             finished_submission_text=self.graded_submission_text()
 
             for tbg in to_be_graded:
-                if tbg is not None and tbg.student_response not in finished_submission_text:
+                if tbg is not None:
                     tbg.state = SubmissionState.being_graded
                     tbg.next_grader_type="IN"
                     tbg.save()
@@ -91,7 +91,7 @@ class StaffLocation(LocationCapsule):
             to_be_graded = self.pending().filter(grader__status_code=GraderStatus.success).order_by('grader__confidence')
     
             for tbg in to_be_graded:
-                if tbg is not None and tbg.student_response not in finished_submission_text:
+                if tbg is not None:
                     tbg.state = SubmissionState.being_graded
                     tbg.next_grader_type="IN"
                     tbg.save()

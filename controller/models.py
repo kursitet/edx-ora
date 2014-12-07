@@ -41,7 +41,8 @@ STATE_CODES = (
     (SubmissionState.being_graded, "Currently being Graded"),
     (SubmissionState.waiting_to_be_graded, "Waiting to be Graded"),
     (SubmissionState.finished, "Finished" ),
-    (SubmissionState.flagged, "Flagged" )
+    (SubmissionState.flagged, "Flagged" ),
+    (SubmissionState.skipped, "Waiting to be Graded" )
     )
 
 CHARFIELD_LEN_SMALL = 128
