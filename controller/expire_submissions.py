@@ -79,10 +79,8 @@ def reset_skipped_subs():
     Reset submissions marked skipped to return them to the queue.
     """
     
-    counter = 0
-    for submission in Submission.objects.filter(state=SubmissionState.skipped):
-        submission.state=SubmissionState.waiting_to_be_graded
-        counter += 1
+    # Mihara: There's no reason not to do that which I can see.    
+    counter = Submission.objects.filter(state=SubmissionState.skipped).update(state=SubmissionState.waiting_to_be_graded)
     
     # Mihara: Seriously, why did they write it like that?
     #counter=0
