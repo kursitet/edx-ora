@@ -207,7 +207,8 @@ def handle_submission(sub):
         sub.save()
         transaction.commit_unless_managed()
         success, check_dict = basic_check_util.simple_quality_check(sub.student_response,
-            sub.initial_display, sub.student_id, sub.skip_basic_checks)
+            sub.initial_display, sub.student_id, True) # sub.skip_basic_checks
+            # Mihara: Smartdec always skipped basic checks. I don't see a reason to keep them either in our situation to be honest.
         if not success:
             log.exception("could not run basic checks on {0}".format(sub.student_response))
 
@@ -261,16 +262,17 @@ def handle_submission(sub):
         sub.preferred_grader_type=grader_settings['grader_type']
 
         #Do duplicate checks
-        is_duplicate, is_plagiarized, duplicate_id = grader_util.check_is_duplicate_and_plagiarized(sub.student_response, sub.location, sub.student_id, sub.preferred_grader_type)
-        sub.is_duplicate=is_duplicate
-        sub.is_plagiarized = is_plagiarized
-        sub.duplicate_submission_id = duplicate_id
+        # Mihara: Smartdec also comments out the entire duplicate check. I'm not sure why.
+        #is_duplicate, is_plagiarized, duplicate_id = grader_util.check_is_duplicate_and_plagiarized(sub.student_response, sub.location, sub.student_id, sub.preferred_grader_type)
+        #sub.is_duplicate=is_duplicate
+        #sub.is_plagiarized = is_plagiarized
+        #sub.duplicate_submission_id = duplicate_id
         sub.has_been_duplicate_checked = True
-        statsd.increment("open_ended_assessment.grading_controller.controller.xqueue_interface.handle_submission.duplicates",
-            tags=[
-                "duplicate:{0}".format(is_duplicate),
-                "is_plagiarized:{0}".format(is_plagiarized)
-                ])
+        #statsd.increment("open_ended_assessment.grading_controller.controller.xqueue_interface.handle_submission.duplicates",
+        #    tags=[
+        #        "duplicate:{0}".format(is_duplicate),
+        #        "is_plagiarized:{0}".format(is_plagiarized)
+        #        ])
 
         sub.save()
 

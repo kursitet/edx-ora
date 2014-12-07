@@ -224,6 +224,32 @@ def set_instructor_grading_item_back_to_preferred_grader(submission_id):
 
     return True, submission
 
+def set_instructor_grading_item_skipped(submission_id):
+    """
+    Sets a submission to 'skipped' status, so it won't show up in lists until a task resets it back.
+    Which should happen within ten minutes.
+    """
+    success, sub=check_submission_id(submission_id)
+
+    if not success:
+        return success, sub
+
+    grader_dict={
+        'feedback' : 'Instructor skipped',
+        'status' : GraderStatus.failure,
+        'grader_id' : 1,
+        'grader_type' : sub.next_grader_type,
+        'confidence' : 1,
+        'score' : 0,
+        'errors' : "Instructor skipped the submission."
+    }
+
+    sub.state=SubmissionState.skipped
+    sub.save()
+    create_grader(grader_dict,sub)
+
+    return True, sub
+
 def check_submission_id(submission_id):
     if not isinstance(submission_id,Submission):
         try:

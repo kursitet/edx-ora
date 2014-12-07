@@ -176,7 +176,10 @@ def save_grade(request):
         return util._error_response("required_parameter_missing", _INTERFACE_VERSION)
 
     if skipped:
-        success, sub = staff_grading_util.set_instructor_grading_item_back_to_preferred_grader(submission_id)
+        # Mihara: The original 'skip' button sends the submission back to the machine grader.
+        # Smartdec's skip button sets a 'skipped' status on the submission and turns it back later.
+        # success, sub = staff_grading_util.set_instructor_grading_item_back_to_preferred_grader(submission_id)
+        success, sub=staff_grading_util.set_instructor_grading_item_skipped(submission_id)
 
         if not success:
             return util._error_response(sub, _INTERFACE_VERSION)

@@ -73,6 +73,12 @@ def expire_submissions_task():
             log.exception("Could not reset ml to in!")
 
         try:
+            expire_submissions.reset_skipped_subs()
+            transaction.commit()
+        except Exception:
+            log.exception("Could not reset skipped submissions!")
+
+        try:
             #See if duplicate peer grading items have been finished grading
             expire_submissions.add_in_duplicate_ids()
             transaction.commit()

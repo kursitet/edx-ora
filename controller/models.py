@@ -14,6 +14,7 @@ class SubmissionState():
     waiting_to_be_graded="W"
     finished="F"
     flagged= "L"
+    skipped="S"
 
 class NotificationTypes():
     peer_grading = 'student_needs_to_peer_grade'
