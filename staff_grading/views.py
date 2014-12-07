@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Implements the staff grading views called by the LMS.
 
@@ -98,6 +99,11 @@ def get_next_submission(request):
                                     _INTERFACE_VERSION,
                                     data={'submission_id': sid})
 
+    if len(submission.student_response) <= 0:
+        student_response = u"Служебная информация: сдан пустой ответ"
+    else:
+        student_response = submission.student_response
+
     #Get error metrics from ml grading, and get into dictionary form to pass down to staff grading view
     success, ml_error_info=ml_grading_util.get_ml_errors(submission.location)
     if success:
@@ -117,7 +123,7 @@ def get_next_submission(request):
                                      'submission_state': submission.state})
 
     response = {'submission_id': sid,
-                'submission': submission.student_response,
+                'submission': student_response,
                 'rubric': submission.rubric,
                 'prompt': submission.prompt,
                 'max_score': submission.max_score,
