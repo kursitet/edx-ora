@@ -80,7 +80,10 @@ def reset_skipped_subs():
     """
     
     # Mihara: There's no reason not to do that which I can see.    
-    counter = Submission.objects.filter(state=SubmissionState.skipped).update(state=SubmissionState.waiting_to_be_graded)
+    counter = Submission.objects.filter(
+        state=SubmissionState.skipped,
+        posted_results_back_to_queue=False
+        ).update(state=SubmissionState.waiting_to_be_graded)
     
     # Mihara: Seriously, why did they write it like that?
     #counter=0
