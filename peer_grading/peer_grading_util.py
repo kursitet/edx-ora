@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db.models import Count
 from controller.models import SubmissionState, GraderStatus, Grader, Submission, NotificationTypes
 import logging
@@ -249,7 +250,7 @@ def get_flagged_submissions(course_id):
     #Have not actually succeeded if there is nothing to show!
     if len(flagged_submissions_list)==0:
         success = False
-        error_message = "No flagged submissions exist for course: {0}".format(course_id)
+        error_message = u"В курсе {0} не существует заданий, помеченных как неприемлемые.".format(course_id)
         flagged_submissions_list = error_message
 
     return success, flagged_submissions_list
@@ -310,7 +311,7 @@ def take_action_on_flags(course_id, student_id, submission_id, action):
         return success, error_message
 
     if sub.state!=SubmissionState.flagged:
-        return success, "Submission is no longer flagged."
+        return success, u"Пометка успешно снята."
 
     success, data = ACTION_HANDLERS[action](course_id, student_id, submission_id)
 
