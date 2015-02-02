@@ -18,9 +18,8 @@ libreadline6
 libreadline6-dev
 super
 aspell
-libblas3gf
+libatlas-dev
 libblas-dev
-liblapack3gf
 liblapack-dev
-libatlas-base-dev
+liblapack3gf
 redis-server
