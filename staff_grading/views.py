@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Implements the staff grading views called by the LMS.
 
@@ -88,7 +89,7 @@ def get_next_submission(request):
         (found, sid) = sc.next_item()
 
     if not found:
-        return util._success_response({'message': 'No more submissions to grade.'},
+        return util._success_response({'message': u'Задания для оценивания закончились.'},
                                       _INTERFACE_VERSION)
     try:
         submission = Submission.objects.get(id=int(sid))
@@ -97,6 +98,11 @@ def get_next_submission(request):
         return util._error_response('failed_to_load_submission',
                                     _INTERFACE_VERSION,
                                     data={'submission_id': sid})
+
+    if len(submission.student_response) <= 0:
+        student_response = u"Служебная информация: сдан пустой ответ"
+    else:
+        student_response = submission.student_response
 
     #Get error metrics from ml grading, and get into dictionary form to pass down to staff grading view
     success, ml_error_info=ml_grading_util.get_ml_errors(submission.location)
@@ -117,7 +123,7 @@ def get_next_submission(request):
                                      'submission_state': submission.state})
 
     response = {'submission_id': sid,
-                'submission': submission.student_response,
+                'submission': student_response,
                 'rubric': submission.rubric,
                 'prompt': submission.prompt,
                 'max_score': submission.max_score,
@@ -176,7 +182,10 @@ def save_grade(request):
         return util._error_response("required_parameter_missing", _INTERFACE_VERSION)
 
     if skipped:
-        success, sub = staff_grading_util.set_instructor_grading_item_back_to_preferred_grader(submission_id)
+        # Mihara: The original 'skip' button sends the submission back to the machine grader.
+        # Smartdec's skip button sets a 'skipped' status on the submission and turns it back later.
+        # success, sub = staff_grading_util.set_instructor_grading_item_back_to_preferred_grader(submission_id)
+        success, sub=staff_grading_util.set_instructor_grading_item_skipped(submission_id)
 
         if not success:
             return util._error_response(sub, _INTERFACE_VERSION)

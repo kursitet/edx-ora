@@ -14,6 +14,7 @@ class SubmissionState():
     waiting_to_be_graded="W"
     finished="F"
     flagged= "L"
+    skipped="S"
 
 class NotificationTypes():
     peer_grading = 'student_needs_to_peer_grade'
@@ -40,7 +41,8 @@ STATE_CODES = (
     (SubmissionState.being_graded, "Currently being Graded"),
     (SubmissionState.waiting_to_be_graded, "Waiting to be Graded"),
     (SubmissionState.finished, "Finished" ),
-    (SubmissionState.flagged, "Flagged" )
+    (SubmissionState.flagged, "Flagged" ),
+    (SubmissionState.skipped, "Waiting to be Graded" )
     )
 
 CHARFIELD_LEN_SMALL = 128

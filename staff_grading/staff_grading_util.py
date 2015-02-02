@@ -21,7 +21,7 @@ class StaffLocation(LocationCapsule):
         """
         Finds all submissions that have been instructor graded, and are now complete.
         """
-        return self.location_submissions().filter(grader__grader_type="IN", state=SubmissionState.finished)
+        return self.location_submissions().filter(grader__grader_type="IN", grader__status_code=GraderStatus.success, state=SubmissionState.finished)
 
     def graded_count(self):
         """
@@ -67,7 +67,7 @@ class StaffLocation(LocationCapsule):
             finished_submission_text=self.graded_submission_text()
 
             for tbg in to_be_graded:
-                if tbg is not None and tbg.student_response not in finished_submission_text:
+                if tbg is not None:
                     tbg.state = SubmissionState.being_graded
                     tbg.next_grader_type="IN"
                     tbg.save()
@@ -91,7 +91,7 @@ class StaffLocation(LocationCapsule):
             to_be_graded = self.pending().filter(grader__status_code=GraderStatus.success).order_by('grader__confidence')
     
             for tbg in to_be_graded:
-                if tbg is not None and tbg.student_response not in finished_submission_text:
+                if tbg is not None:
                     tbg.state = SubmissionState.being_graded
                     tbg.next_grader_type="IN"
                     tbg.save()
@@ -223,6 +223,32 @@ def set_instructor_grading_item_back_to_preferred_grader(submission_id):
     create_grader(grader_dict, submission)
 
     return True, submission
+
+def set_instructor_grading_item_skipped(submission_id):
+    """
+    Sets a submission to 'skipped' status, so it won't show up in lists until a task resets it back.
+    Which should happen within ten minutes.
+    """
+    success, sub=check_submission_id(submission_id)
+
+    if not success:
+        return success, sub
+
+    grader_dict={
+        'feedback' : 'Instructor skipped',
+        'status' : GraderStatus.failure,
+        'grader_id' : 1,
+        'grader_type' : sub.next_grader_type,
+        'confidence' : 1,
+        'score' : 0,
+        'errors' : "Instructor skipped the submission."
+    }
+
+    sub.state=SubmissionState.skipped
+    sub.save()
+    create_grader(grader_dict,sub)
+
+    return True, sub
 
 def check_submission_id(submission_id):
     if not isinstance(submission_id,Submission):

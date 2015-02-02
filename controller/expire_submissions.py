@@ -74,6 +74,32 @@ def reset_in_subs_to_ml():
         log.debug("Reset {0} instructor subs to ML".format(count))
 
     return True
+def reset_skipped_subs():
+    """
+    Reset submissions marked skipped to return them to the queue.
+    """
+    
+    # Mihara: There's no reason not to do that which I can see.    
+    counter = Submission.objects.filter(
+        state=SubmissionState.skipped,
+        posted_results_back_to_queue=False
+        ).update(state=SubmissionState.waiting_to_be_graded)
+    
+    # Mihara: Seriously, why did they write it like that?
+    #counter=0
+    #unique_locations=[x['location'] for x in Submission.objects.all().values('location').distinct()]
+    #for location in unique_locations:
+    #    subs_pending_total= Submission.objects.filter(
+    #        location=location,
+    #        state=SubmissionState.skipped
+    #    ).order_by('-date_created')
+    #    for sub in subs_pending_total:
+    #        sub.state=SubmissionState.waiting_to_be_graded
+    #        counter+=1
+    if counter>0:
+        statsd.increment("open_ended_assessment.grading_controller.expire_submissions.reset_skipped_subs",
+            tags=["counter:{0}".format(counter)])
+        log.debug("Reset {0} submission from skipped state".format(counter))
 
 def reset_subs_in_basic_check():
     #Reset submissions that are stuck in basic check state
