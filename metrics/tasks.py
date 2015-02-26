@@ -1,7 +1,7 @@
 from controller.models import Submission, SubmissionState, Message
 from django.http import HttpResponse
 import re
-import csv
+import unicodecsv as csv
 from .models import StudentCourseProfile, FIELDS_TO_EVALUATE
 import numpy
 from django.forms.models import model_to_dict
